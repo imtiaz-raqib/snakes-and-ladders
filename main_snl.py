@@ -221,7 +221,7 @@ def howTo():
 def startGame():
 
     intro = True
-
+    compMove(grid)
     while intro:
     
         for event in pygame.event.get():
@@ -253,9 +253,6 @@ def startGame():
         screen.blit(board, board_rect)
         screen.blit(prs_ent, ent_rect)
 
-        
-        compMove(grid)
-
         screen.blit(player, ((0*(res+margin)), (9*(res+margin))))
         # screen.blit(comp, ((0*(res+margin)-20), (9*(res+margin))))
         screen.blit(comp, ((1*(res+margin)-20), (8*(res+margin))))
@@ -264,11 +261,14 @@ def startGame():
         clock.tick(30)
         pygame.display.flip()
 
-def compMove(bGrid):
+def compMove(bGrid):    
+    steps = random.randint(1, 6) 
+    #Get Quotient = X 
+    y = 9 - (steps//10)
+    #Get remainder = Y
+    x = (steps%10) - 1
+    #Steps should be cumulative, whoever reach 100 first, wins
 
-    
-    steps = random.randint(1, 6)
-    # print(current_pos)
     
 
 
