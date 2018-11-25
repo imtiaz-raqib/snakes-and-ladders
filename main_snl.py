@@ -17,13 +17,22 @@ import time
 #------------------------------------------
 
 # Window Variables
-(width, height) = (600, 600) # Width and Height of the board
-res = 60
+(width, height) = (1200, 800) # Width and Height of the board
+res = 70
+margin = 10
 
 # Color variables
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+# ------ GRID COLORS ------
+green = (46, 139, 87)
+pastelRed = (255, 107, 107)
+yellow = (255, 159, 67)
+cyan = (10, 189, 227)
+blue = (95, 39, 205)
+
+gridColors = [green, pastelRed, yellow, cyan, blue]
 
 # Intializing pygame and Game State ---------------------------------------
 pygame.init()
@@ -36,6 +45,31 @@ point_img = pygame.transform.scale(point_img, (24, 24))
 curs_rect = point_img.get_rect() # get image space, rectangle ulc, lrc coordinates
 curs_rect.centerx = (width//2 - 65)
 curs_rect.centery = (height//2 + 50)
+# -------------------------------------------------------------------------
+
+# Board  ------------------------------------------------------------------
+board = pygame.image.load('board.jpg')
+board = pygame.transform.scale(board, (800, 800))
+board_rect = board.get_rect() # get image space, rectangle ulc, lrc coordinates
+
+# -------------------------------------------------------------------------
+
+# Press Enter  ------------------------------------------------------------
+prs_ent = pygame.image.load('roll.png')
+prs_ent = pygame.transform.scale(prs_ent, (300, 100))
+ent_rect = prs_ent.get_rect() # get image space, rectangle ulc, lrc coordinates
+ent_rect.centerx = (1000)
+ent_rect.centery = (250)
+
+# -------------------------------------------------------------------------
+
+# Player Tokens  ----------------------------------------------------------
+player = pygame.image.load('player.png')
+player = pygame.transform.scale(player, (120, 75))
+player_rect = player.get_rect()
+comp = pygame.image.load('comp.png')
+comp = pygame.transform.scale(comp, (120, 75))
+comp_rect = comp.get_rect()
 # -------------------------------------------------------------------------
 
 # How To Play -------------------------------------------------------------
@@ -72,6 +106,16 @@ def text_objects(text, font, g_color):
     textSurface = font.render(text, True, g_color)
     return textSurface, textSurface.get_rect()
 
+# Create a 2 dimensional array. A two dimensional
+# array is simply a list of lists.
+grid = []
+for row in range(10):
+    # Add an empty array that will hold each cell
+    # in this row
+    grid.append([])
+    for column in range(10):
+        grid[row].append(column)  # Append a cell
+
 # The Main Menu
 def game_intro():
 
@@ -101,7 +145,7 @@ def game_intro():
     intro = True
 
     while intro:
-        # limit runtime speed to 30 frames/second
+        # limit runtime speed to 30 frames//second
         clock.tick(30)
         pygame.event.pump()
 
@@ -140,7 +184,7 @@ def howTo():
     intro = True
 
     while intro:
-        # limit runtime speed to 30 frames/second
+        # limit runtime speed to 30 frames//second
         clock.tick(30)
         pygame.event.pump()
 
@@ -179,28 +223,53 @@ def startGame():
     intro = True
 
     while intro:
-        # limit runtime speed to 30 frames/second
-        clock.tick(30)
-        pygame.event.pump()
-
+    
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+            # User clicks the mouse. Get the position
+                pos = pygame.mouse.get_pos()
+                # Change the x/y screen coordinates to grid coordinates
+                column = pos[0] // (res + margin)
+                row = pos[1] // (res + margin)
+                # Set that location to one
+                grid[row][column] = 1
+                print("Click ", pos, "Grid coordinates: ", row, column)
+    
 
-        screen.fill(white)
-        pygame.display.update()
+        screen.fill(black)
+        
+        # # Drawing the grid
+        # for row in range(0, 10):
+        #     for column in range(0, 10):
+                
+        #         pygame.draw.rect(screen, 
+        #                          pastelRed, [(res + margin) * column + margin, 
+        #                          (margin + res) * row + margin, res, res])
 
+        # Blitting the board
+        screen.blit(board, board_rect)
+        screen.blit(prs_ent, ent_rect)
 
+        
+        compMove(grid)
 
+        screen.blit(player, ((0*(res+margin)), (9*(res+margin))))
+        # screen.blit(comp, ((0*(res+margin)-20), (9*(res+margin))))
+        screen.blit(comp, ((1*(res+margin)-20), (8*(res+margin))))
+    
+        # limit runtime speed to 30 frames//second
+        clock.tick(30)
+        pygame.display.flip()
 
+def compMove(bGrid):
 
-
-
-
-
-
+    
+    steps = random.randint(1, 6)
+    # print(current_pos)
+    
 
 
 # Closing loops and initializations
