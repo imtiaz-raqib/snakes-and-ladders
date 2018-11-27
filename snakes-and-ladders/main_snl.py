@@ -229,42 +229,51 @@ def startGame():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            # elif event.type == pygame.MOUSEBUTTONDOWN:
+            # # User clicks the mouse. Get the position
+            #     pos = pygame.mouse.get_pos()
+            #     # Change the x/y screen coordinates to grid coordinates
+            #     column = pos[0] // (res + margin)
+            #     row = pos[1] // (res + margin)
+            #     # Set that location to one
+            #     grid[row][column] = 1
+            #     print("Click ", pos, "Grid coordinates: ", row, column)
+    
+
         screen.fill(black)
         
         # Blitting the board
         screen.blit(board, board_rect)
         screen.blit(prs_ent, ent_rect)
+        
         playGame()
+
         # limit runtime speed to 30 frames//second
         clock.tick(30)
+        
         # pygame.display.flip()
         
 # Calling compMove and moving the tokens on the board
 def playGame():
     c = 0 
-    terminal = False 
-    if not terminal:
-        if keyPressed(pygame.K_p):
-            if c < 100:
-                row, col, num, c = compMove(c)
-                print("c:", c)
-                c += int(num)
-                printDiceRoll(num, 'p')
-            else:
-                terminal = True
-        screen.blit(player, (((row)*(res+margin)), ((col)*(res+margin))))
+    if keyPressed(pygame.K_p):
+        while c < 100: 
+            row, col, num, c = compMove(c)
+            print("c:", c)
+            c += int(num)
+            printDiceRoll(num, 'p')
+        screen.blit(player, (((col)*(res+margin)), ((row)*(res+margin))))
         pygame.display.update()
-    
+
 
 def compMove(c):   
     steps = random.randint(1, 6) 
     #Get Quotient = Y 
     y = 9 - (c//10)
     #Get remainder = X
-    x = (c%10) 
+    x = (c%10) - 1
     #Steps should be cumulative, whoever reach 100 first, wins
     c = c + steps 
-    print( y, x)
     print("step,", steps, "current", c)
     return y, x, str(steps), c
 
