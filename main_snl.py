@@ -140,7 +140,7 @@ def game_intro():
     # The UI indicator for PLAY and QUIT
     screen.blit(point_img, curs_rect)
     screen.blit(snl_header, snlH_rect)
-    pygame.display.flip()
+    
 
     intro = True
 
@@ -150,7 +150,6 @@ def game_intro():
         pygame.event.pump()
 
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -221,22 +220,23 @@ def howTo():
 def startGame():
 
     intro = True
-    compMove(grid)
+    
+    
     while intro:
     
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-            # User clicks the mouse. Get the position
-                pos = pygame.mouse.get_pos()
-                # Change the x/y screen coordinates to grid coordinates
-                column = pos[0] // (res + margin)
-                row = pos[1] // (res + margin)
-                # Set that location to one
-                grid[row][column] = 1
-                print("Click ", pos, "Grid coordinates: ", row, column)
+            # elif event.type == pygame.MOUSEBUTTONDOWN:
+            # # User clicks the mouse. Get the position
+            #     pos = pygame.mouse.get_pos()
+            #     # Change the x/y screen coordinates to grid coordinates
+            #     column = pos[0] // (res + margin)
+            #     row = pos[1] // (res + margin)
+            #     # Set that location to one
+            #     grid[row][column] = 1
+            #     print("Click ", pos, "Grid coordinates: ", row, column)
     
 
         screen.fill(black)
@@ -249,19 +249,40 @@ def startGame():
         #                          pastelRed, [(res + margin) * column + margin, 
         #                          (margin + res) * row + margin, res, res])
 
+        # Printing the number rolled
+
+
         # Blitting the board
         screen.blit(board, board_rect)
         screen.blit(prs_ent, ent_rect)
+        
+        playGame()
 
-        screen.blit(player, ((0*(res+margin)), (9*(res+margin))))
-        # screen.blit(comp, ((0*(res+margin)-20), (9*(res+margin))))
-        screen.blit(comp, ((1*(res+margin)-20), (8*(res+margin))))
-    
         # limit runtime speed to 30 frames//second
         clock.tick(30)
-        pygame.display.flip()
+        
+        # pygame.display.flip()
 
-def compMove(bGrid):    
+def playGame():
+    p_pos = 0
+    if keyPressed(pygame.K_p):
+        row, col, num = compMove()
+        printDiceRoll(num, 'p')
+        screen.blit(player, (((p_pos+col)*(res+margin)), ((row)*(res+margin))))
+        p_pos += 3
+        pygame.display.update()
+
+    elif keyPressed(pygame.K_c):
+        r_ow, c_ol, n_um = compMove()
+        printDiceRoll(n_um, 'c')
+        screen.blit(comp, ((c_ol*(res+margin)-20), (r_ow*(res+margin))))
+        pygame.display.update()
+
+    # screen.blit(comp, ((0*(res+margin)-20), (9*(res+margin))))
+    # screen.blit(comp, ((1*(res+margin)-20), (8*(res+margin))))
+
+
+def compMove():    
     steps = random.randint(1, 6) 
     #Get Quotient = X 
     y = 9 - (steps//10)
@@ -269,9 +290,32 @@ def compMove(bGrid):
     x = (steps%10) - 1
     #Steps should be cumulative, whoever reach 100 first, wins
 
-    
+    return y, x, str(steps)
 
+def printDiceRoll(num, var):
 
+    if var == 'p':
+        TextSurf_r, TextRect_r = text_objects('Player rolled ' + num, smallText, yellow)
+        TextRect_r.center = (1000, 400)
+        screen.blit(TextSurf_r, TextRect_r)
+
+    elif var == 'c':
+        TextSurf_r, TextRect_r = text_objects('Computer rolled ' + num, smallText, cyan)
+        TextRect_r.center = (1000, 500)
+        screen.blit(TextSurf_r, TextRect_r)
+
+def keyPressed(inputKey):
+    keysPressed = pygame.key.get_pressed()
+    if keysPressed[inputKey]:
+        return True
+    else:
+        return False
+
+def key_Pressed(inputKey):
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == inputKey:
+                return True
 # Closing loops and initializations
 game_intro()
 pygame.quit()
