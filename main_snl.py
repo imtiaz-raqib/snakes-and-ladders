@@ -251,7 +251,8 @@ def startGame():
         clock.tick(30)
         
         # pygame.display.flip()
-
+        
+# Calling compMove and moving the tokens on the board
 def playGame():
     p_pos = 0
     if keyPressed(pygame.K_p):
