@@ -25,14 +25,11 @@ margin = 10
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
-# ------ GRID COLORS ------
 green = (46, 139, 87)
 pastelRed = (255, 107, 107)
 yellow = (255, 159, 67)
 cyan = (10, 189, 227)
 blue = (95, 39, 205)
-
-gridColors = [green, pastelRed, yellow, cyan, blue]
 
 # Intializing pygame and Game State ---------------------------------------
 pygame.init()
@@ -168,6 +165,7 @@ def game_intro():
 
         if keys[pygame.K_RETURN] and curs_rect.centery == (height//2 + 50):
             startGame()
+            
 
         if keys[pygame.K_h]:
             howTo()
@@ -220,92 +218,197 @@ def howTo():
 def startGame():
 
     intro = True
-    
-    
+    c = 0
+    player_switcher = 0 # Even number is Player 2 and Odd number is Player 1
+
     while intro:
     
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            # elif event.type == pygame.MOUSEBUTTONDOWN:
-            # # User clicks the mouse. Get the position
-            #     pos = pygame.mouse.get_pos()
-            #     # Change the x/y screen coordinates to grid coordinates
-            #     column = pos[0] // (res + margin)
-            #     row = pos[1] // (res + margin)
-            #     # Set that location to one
-            #     grid[row][column] = 1
-            #     print("Click ", pos, "Grid coordinates: ", row, column)
     
-
         screen.fill(black)
         
         # Blitting the board
         screen.blit(board, board_rect)
-        screen.blit(prs_ent, ent_rect)
+
+        # Run until total number of steps (i.e. c) < 100
+        if c < 100:
+            row, col, num, c = compMove(c)
+            # incrementing c with the roll on the die as the number to move
+            c += int(num)
+
+            # Checking to see if the players hit anything and printing the ---
+            # appropriate message
+            c1, check_bool = checkSnl(c)
+            if check_bool == True and c1 > c and player_switcher%2==0:
+                print_message('c', 'ladder')
+                c = c1
+            
+            elif check_bool == True and c1 > c and player_switcher%2!=0:
+                print_message('p', 'ladder')
+                c = c1
+
+            elif check_bool == True and c1 < c and player_switcher%2==0:
+                print_message('c', 'snake')
+                c = c1
+            
+            elif check_bool == True and c1 < c and player_switcher%2!=0:
+                print_message('p', 'snake')
+                c = c1
+            # -----------------------------------------------------------------
+
+            elif player_switcher % 2 != 0:
+                printDiceRoll(num, 'p')
+                playGame(row, col, c, 'player')
+            
+            elif player_switcher % 2 == 0:
+                printDiceRoll(num, 'c')
+                playGame(row, col, c, 'comp')
+
+            player_switcher += 1
         
-        playGame()
+        # Check to see if the game is over
+        elif c >= 100:
+            
+            if player_switcher % 2 == 0:
+                victory_message('c', comp, (1000, 250))
+            elif player_switcher % 2 != 0:
+                victory_message('p', player, (1000, 250))
 
-        # limit runtime speed to 30 frames//second
-        clock.tick(30)
-        
-        # pygame.display.flip()
-        
-# Calling compMove and moving the tokens on the board
-def playGame():
-    p_pos = 0
-    if keyPressed(pygame.K_p):
-        row, col, num = compMove()
-        printDiceRoll(num, 'p')
-        screen.blit(player, (((p_pos+col)*(res+margin)), ((row)*(res+margin))))
-        p_pos += 3
-        pygame.display.update()
+# Calling compMove and moving the tokens on the board -------------------------------------------------------------
+def playGame(row, col, c, p):
+    
+    # print('Row: ' + str(row) + '  Col: ' + str(col) + '  Num: ' + num)
+    if p == 'player':
+        screen.blit(player, ((col*(res+margin)), (row*(res+margin))))
+    
+    elif p == 'comp':
+        screen.blit(comp, ((col*(res+margin)), (row*(res+margin))))
+    # limit runtime speed to 30 frames//second
+    clock.tick(2)
+    pygame.display.update()
+# ------------------------------------------------------------------------------------------------------------------
 
-    elif keyPressed(pygame.K_c):
-        r_ow, c_ol, n_um = compMove()
-        printDiceRoll(n_um, 'c')
-        screen.blit(comp, ((c_ol*(res+margin)-20), (r_ow*(res+margin))))
-        pygame.display.update()
+# Using checkSnl() and printing what the player hit in the board --------------------------------------------------
+def print_message(player, type):
 
-    # screen.blit(comp, ((0*(res+margin)-20), (9*(res+margin))))
-    # screen.blit(comp, ((1*(res+margin)-20), (8*(res+margin))))
+    if type == 'ladder':
+        if player == 'p':
+            TextSurf_r, TextRect_r = text_objects('Player 1 climbed a ladder!', smallText, yellow)
+            TextRect_r.center = (1000, 600)
+            screen.blit(TextSurf_r, TextRect_r)
 
+        elif player == 'c':
+            TextSurf_r, TextRect_r = text_objects('Player 2 climbed a ladder!', smallText, cyan)
+            TextRect_r.center = (1000, 700)
+            screen.blit(TextSurf_r, TextRect_r)
 
-def compMove():    
-    steps = random.randint(1, 6) 
-    #Get Quotient = X 
-    y = 9 - (steps//10)
-    #Get remainder = Y
-    x = (steps%10) - 1
+    elif type == 'snake':
+        if player == 'p':
+            TextSurf_r, TextRect_r = text_objects('Player 1 was bitten by a snake!!!', smallText, yellow)
+            TextRect_r.center = (1000, 600)
+            screen.blit(TextSurf_r, TextRect_r)
+
+        elif player == 'c':
+            TextSurf_r, TextRect_r = text_objects('Player 2 was bitten by a snake!!!', smallText, cyan)
+            TextRect_r.center = (1000, 700)
+            screen.blit(TextSurf_r, TextRect_r)
+
+    pygame.display.flip()
+# -----------------------------------------------------------------------------------------------------------------
+
+# Computing the movement of the players within the board ----------------------------------------
+def compMove(c):   
+    steps = random.randint(1, 6)
+    #Get Quotient = Y 
+    y = 9 - (c //10)
+    #Get remainder = X
+    x = (c % 10) - 1
     #Steps should be cumulative, whoever reach 100 first, wins
 
-    return y, x, str(steps)
+    return y, x, str(steps), c
+# -----------------------------------------------------------------------------------------------
 
+# Checking to see if the roll made the player hit a Snake or Ladder ---------------------------
+def checkSnl(c):
+
+    # LADDERS ---------
+    if c == 3: 
+        c = 51
+    
+    elif c == 6:  
+        c = 27
+    
+    elif c == 20: 
+        c = 70
+    
+    elif c == 36: 
+        c = 55
+    
+    elif c == 63: 
+        c = 95
+
+    elif c == 68:
+        c = 98
+    # -----------------
+    # SNAKES ----------
+    elif c == 34:
+        c = 1
+
+    elif c == 25:
+        c = 5
+
+    elif c == 47:
+        c = 19
+    
+    elif c == 65:
+        c = 52
+    
+    elif c == 87:
+        c = 57
+    
+    elif c == 91:
+        c = 61
+    
+    elif c == 99:
+        c = 69
+    # -----------------
+    return c, True
+# -----------------------------------------------------------------------------------------------
+
+# Printing the random number generated as a dice roll -------------------------------------------
 def printDiceRoll(num, var):
 
     if var == 'p':
-        TextSurf_r, TextRect_r = text_objects('Player rolled ' + num, smallText, yellow)
+        TextSurf_r, TextRect_r = text_objects('Player rolled a ' + num, smallText, yellow)
         TextRect_r.center = (1000, 400)
         screen.blit(TextSurf_r, TextRect_r)
 
     elif var == 'c':
-        TextSurf_r, TextRect_r = text_objects('Computer rolled ' + num, smallText, cyan)
+        TextSurf_r, TextRect_r = text_objects('Computer rolled a ' + num, smallText, cyan)
         TextRect_r.center = (1000, 500)
         screen.blit(TextSurf_r, TextRect_r)
+# -----------------------------------------------------------------------------------------------
 
-def keyPressed(inputKey):
-    keysPressed = pygame.key.get_pressed()
-    if keysPressed[inputKey]:
-        return True
-    else:
-        return False
+# Printing the winner of the game ---------------------------------------------------------------
+def victory_message(winningPlayer, image, image_rect):
+    
+    if winningPlayer == 'p':
+        TextSurf_r, TextRect_r = text_objects('Player 1 won \(-_-)/', largeText, pastelRed)
+        TextRect_r.center = (1000, 200)
+        screen.blit(TextSurf_r, TextRect_r)
 
-def key_Pressed(inputKey):
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == inputKey:
-                return True
+    elif winningPlayer == 'c':
+        TextSurf_r, TextRect_r = text_objects('Player 2 won \(-_-)/', largeText, pastelRed)
+        TextRect_r.center = (1000, 200)
+        screen.blit(TextSurf_r, TextRect_r)
+    
+    screen.blit(image, image_rect)
+    pygame.display.flip()
+# -----------------------------------------------------------------------------------------------
+
 # Closing loops and initializations
 game_intro()
 pygame.quit()
