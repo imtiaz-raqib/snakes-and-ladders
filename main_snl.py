@@ -241,17 +241,6 @@ def startGame():
 
         screen.fill(black)
         
-        # # Drawing the grid
-        # for row in range(0, 10):
-        #     for column in range(0, 10):
-                
-        #         pygame.draw.rect(screen, 
-        #                          pastelRed, [(res + margin) * column + margin, 
-        #                          (margin + res) * row + margin, res, res])
-
-        # Printing the number rolled
-
-
         # Blitting the board
         screen.blit(board, board_rect)
         screen.blit(prs_ent, ent_rect)
