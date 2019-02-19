@@ -16,6 +16,10 @@ import random
 import time
 #------------------------------------------
 
+# ------ SET THE SPEED OF THE GAME --------
+SPEED = 3
+# -----------------------------------------
+
 # Window Variables
 (width, height) = (1200, 800) # Width and Height of the board
 res = 70
@@ -175,7 +179,7 @@ def game_intro():
         screen.blit(point_img, curs_rect)
         pygame.display.flip()
 
-# This function upates the window to show instructions on how to play the game
+''' This function upates the window to show instructions on how to play the game '''
 def howTo():
 
     intro = True
@@ -279,7 +283,7 @@ def startGame():
 
 # Calling compMove and moving the tokens on the board -------------------------------------------------------------
 def playGame(row, col, c, p):
-    
+    global SPEED
     # print('Row: ' + str(row) + '  Col: ' + str(col) + '  Num: ' + num)
     if p == 'player':
         screen.blit(player, ((col*(res+margin)), (row*(res+margin))))
@@ -287,7 +291,7 @@ def playGame(row, col, c, p):
     elif p == 'comp':
         screen.blit(comp, ((col*(res+margin)), (row*(res+margin))))
     # limit runtime speed to 30 frames//second
-    clock.tick(2)
+    clock.tick(SPEED)
     pygame.display.update()
 # ------------------------------------------------------------------------------------------------------------------
 
